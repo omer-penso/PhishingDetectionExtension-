@@ -1,6 +1,6 @@
 (function() {
     //extract URL
-    const pageURL = window.location.href;
+    const pageURL = new URL(window.location.href);
 
     //extract HTML features
     const htmlFeatures = {

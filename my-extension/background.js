@@ -1,24 +1,22 @@
-let result = "unknown";  // TODO: cheack if muli-tab need to save them..
+let result = "unknown";  // TODO: cheack if muli-tab or one-tab
 
-chrome.runtime.onMessage.addListener((message, sender) => {
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === "pageData") {
         const url = message.url;
         const htmlFeatures = message.htmlFeatures;
 
         result = runPhishingModel(url, htmlFeatures);
+    }
 
-        //Send result to popup
-        chrome.runtime.sendMessage({
-            action: "modelResult",
-            result: result
-        });
+    if (message.action === "getPageStatus") {
+        sendResponse({ result });
     }
 });
 
 // TODO: run the models
 function runPhishingModel(url, htmlFeatures) {
-    if (url.length < 20) {
-        return "phishing";
+    if (url.length < 40) {
+        return "safe";
     }
-    return "safe";
+    return "phishing";
 }
