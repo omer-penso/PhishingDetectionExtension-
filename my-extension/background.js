@@ -1,22 +1,33 @@
+import { extractFeatures } from './featureExtractor.js';
+import { predictRF } from './rf_model.js';
+
 let result = "unknown";  // TODO: cheack if muli-tab or one-tab
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === "pageData") {
-        const url = message.url;
-        const htmlFeatures = message.htmlFeatures;
+        console.log("logging: Detected pageData message");
 
-        result = runPhishingModel(url, htmlFeatures);
+        const url = message.url;
+        //const htmlFeatures = message.htmlFeatures;predictRF
+
+        console.log("logging: URL received:", url);
+
+        result = runURLModel(url);
     }
 
     if (message.action === "getPageStatus") {
+        console.log("logging: Popup requested status → sending:", result);
         sendResponse({ result });
     }
 });
 
-// TODO: run the models
-function runPhishingModel(url, htmlFeatures) {
-    if (url.length < 40) {
-        return "safe";
-    }
-    return "phishing";
+function runURLModel(url) {
+    const features = extractFeatures(url);
+    console.log("logging: URL features extracted:", features);
+    if (!features) return "unknown";   // in case url is invalid
+
+    const result = predictRF(features);
+    console.log("logging: FINAL RESULT:", result);
+    // result = [safe_probability, phishing_probability]
+    return result[1] > result[0] ? "phishing" : "safe";
 }
