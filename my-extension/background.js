@@ -1,5 +1,5 @@
 import { extractFeatures } from './featureExtractor.js';
-import { predictRF } from './rf_model.js';
+import { score } from './rf_shallow.js';
 
 let result = "unknown";  // TODO: cheack if muli-tab or one-tab
 
@@ -26,8 +26,8 @@ function runURLModel(url) {
     console.log("logging: URL features extracted:", features);
     if (!features) return "unknown";   // in case url is invalid
 
-    const result = predictRF(features);
+    const result = score(features);
     console.log("logging: FINAL RESULT:", result);
     // result = [safe_probability, phishing_probability]
-    return result[1] > result[0] ? "phishing" : "safe";
+    return result[0] > 0.45 ? "phising" : "safe";
 }
